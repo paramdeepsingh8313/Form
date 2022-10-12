@@ -8,12 +8,14 @@ import {
   StyleSheet,
   Button,
   ScrollView,
+  TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import SelectList from 'react-native-dropdown-select-list';
+
+import DocumentPicker from 'react-native-document-picker';
 // import RNPickerSelect from 'react-native-picker-select';
-// import Form from './src/Form/Form';
 
 function App() {
   const [name, setName] = useState('');
@@ -22,6 +24,8 @@ function App() {
   const [confirmPswd, setConfirmPswd] = useState('');
 
   const [selected, setSelected] = React.useState('');
+
+  const [singleFile, setSingleFile] = useState(null);
 
   const data = [
     {key: 'Jammu & Kashmir', value: 'Jammu & Kashmir'},
@@ -56,9 +60,69 @@ function App() {
     }
   };
 
-  // if (selected.length > 0) {
-  //   Alert.alert(selected);
-  // }
+  const uploadImage = () => {
+    // Check if any file is selected or not
+    if (singleFile != null) {
+      console.log('dataaaaaaaaa', singleFile);
+
+      // If file selected then create FormData
+      // const fileToUpload = singleFile;
+      // const data = new FormData();
+      // data.append('name', 'Image Upload');
+      // data.append('file_attachment', fileToUpload);
+
+      // Please change file upload URL
+      //   let res = await fetch(
+      //     'http://localhost/upload.php',
+      //     {
+      //       method: 'post',
+      //       body: data,
+      //       headers: {
+      //         'Content-Type': 'multipart/form-data; ',
+      //       },
+      //     }
+      //   );
+      //   let responseJson = await res.json();
+      //   if (responseJson.status == 1) {
+      //     alert('Upload Successful');
+      //   }
+      // } else {
+      //   // If no file selected the show alert
+      //   alert('Please Select File first');
+      // }
+    }
+  };
+
+  const selectFile = async () => {
+    // Opening Document Picker to select one file
+    try {
+      const res = await DocumentPicker.pick({
+        // Provide which type of file you want user to pick
+        type: [DocumentPicker.types.allFiles],
+        // There can me more options as well
+        // DocumentPicker.types.allFiles
+        // DocumentPicker.types.images
+        // DocumentPicker.types.plainText
+        // DocumentPicker.types.audio
+        // DocumentPicker.types.pdf
+      });
+      // Printing the log realted to the file
+      console.log('res : ' + JSON.stringify(res));
+      // Setting the state to show single file attributes
+      setSingleFile(res);
+    } catch (err) {
+      setSingleFile(null);
+      // Handling any exception (If any)
+      if (DocumentPicker.isCancel(err)) {
+        // If user canceled the document selection
+        alert('Canceled');
+      } else {
+        // For Unknown Error
+        alert('Unknown Error: ' + JSON.stringify(err));
+        throw err;
+      }
+    }
+  };
 
   return (
     <SafeAreaView>
@@ -105,6 +169,25 @@ function App() {
             boxStyles={{marginHorizontal: 10}}
             // onSelect={() => Alert.alert(selected)}
           />
+
+          <TouchableOpacity
+            style={styles.buttonStyle}
+            activeOpacity={0.5}
+            onPress={selectFile}>
+            <View style={styles.file}>
+              <Text style={styles.buttonTextStyle}>Select File</Text>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.buttonStyle}
+            activeOpacity={0.5}
+            onPress={uploadImage}>
+            <View style={styles.file}>
+              <Text style={styles.buttonTextStyle}>Upload File</Text>
+            </View>
+          </TouchableOpacity>
+
           <View style={styles.btn}>
             <Button onPress={SubmitForm} title="Submit" />
           </View>
@@ -150,5 +233,18 @@ const styles = StyleSheet.create({
   btn: {
     marginVertical: 20,
     marginHorizontal: 15,
+  },
+  buttonTextStyle: {
+    color: 'Black',
+    paddingVertical: 10,
+    paddingHorizontal: '30%',
+    fontSize: 16,
+  },
+  file: {
+    marginBottom: 10,
+    marginTop: 20,
+    marginHorizontal: '20%',
+    borderWidth: 1,
+    borderRadius: 8,
   },
 });
